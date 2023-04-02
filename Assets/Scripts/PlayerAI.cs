@@ -15,11 +15,35 @@ public class PlayerAI : MonoBehaviour
         
         //Weights of the actions, higher number = more likely
         weights = new int[5];
-        weights[(int)ACTIONS.MOVELEFT] = 30; //MOVELEFT
-        weights[(int)ACTIONS.MOVERIGHT] = 10; //MOVERIGHT
-        weights[(int)ACTIONS.WAIT] = 5; //WAIT
-        weights[(int)ACTIONS.PUNCH] = 30; //PUNCH
-        weights[(int)ACTIONS.BLOCK] = 10; //BLOCK
+
+        int actionSetChoice = PlayerPrefs.GetInt("AIActionSet");
+        //aggro
+        if (actionSetChoice == 0)
+        {
+            weights[(int)ACTIONS.MOVELEFT] = 45; //MOVELEFT
+            weights[(int)ACTIONS.MOVERIGHT] = 10; //MOVERIGHT
+            weights[(int)ACTIONS.WAIT] = 5; //WAIT
+            weights[(int)ACTIONS.PUNCH] = 30; //PUNCH
+            weights[(int)ACTIONS.BLOCK] = 10; //BLOCK
+        }
+        //defensive
+        if (actionSetChoice == 1)
+        {
+            weights[(int)ACTIONS.MOVELEFT] = 5; //MOVELEFT
+            weights[(int)ACTIONS.MOVERIGHT] = 30; //MOVERIGHT
+            weights[(int)ACTIONS.WAIT] = 5; //WAIT
+            weights[(int)ACTIONS.PUNCH] = 20; //PUNCH
+            weights[(int)ACTIONS.BLOCK] = 40; //BLOCK
+        }
+        //evenly random
+        if (actionSetChoice == 2)
+        {
+            weights[(int)ACTIONS.MOVELEFT] = 15; //MOVELEFT
+            weights[(int)ACTIONS.MOVERIGHT] = 15; //MOVERIGHT
+            weights[(int)ACTIONS.WAIT] = 30; //WAIT
+            weights[(int)ACTIONS.PUNCH] = 20; //PUNCH
+            weights[(int)ACTIONS.BLOCK] = 20; //BLOCK
+        }
 
         foreach (int w in weights)
         {

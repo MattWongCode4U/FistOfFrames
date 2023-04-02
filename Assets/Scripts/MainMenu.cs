@@ -36,6 +36,12 @@ public class MainMenu : MonoBehaviour
         SceneManager.LoadScene("Game");
     }
 
+    //Set AI action set using player prefs.
+    public void setAIActionSet(int i)
+    {
+        PlayerPrefs.SetInt("AIActionSet", i);
+    }
+
     //Loads the Main menu scene
     public void mainMenu()
     {
