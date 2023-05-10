@@ -2,24 +2,43 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIHandler : MonoBehaviour
 {
-    public TextMeshProUGUI p1hp;
-    public TextMeshProUGUI p2hp;
     public TextMeshProUGUI roundsText;
-    public TextMeshProUGUI p1WRounds;
-    public TextMeshProUGUI p2WRounds;
-    public TextMeshProUGUI p1Actions;
-    public TextMeshProUGUI p2Actions;
     public TextMeshProUGUI p1Ready;
     public TextMeshProUGUI p2Ready;
-    public TextMeshProUGUI p1ActionsQueue;
-    public TextMeshProUGUI p2ActionsQueue;
 
     public TextMeshProUGUI gameOverPlayerWonText;
     public TextMeshProUGUI roundOverOverlayText;
     public GameObject roundOverOverlay;
+
+    public Image p1Clapper;
+    public Image p2Clapper;
+    public Sprite clapperOpen;
+    public Sprite clapperClosed;
+
+    public Image[] p1Lights;
+    public Image[] p2Lights;
+    public Sprite lightOff;
+    public Sprite lightOn;
+
+    public GameObject[] p1Megaphones;
+    public GameObject[] p2Megaphones;
+
+    public GameObject[] p1Heart;
+    public GameObject[] p2Heart;
+
+    public Image[] p1AQ;
+    public Image[] p2AQ;
+    public Sprite AQLeft;
+    public Sprite AQRight;
+    public Sprite AQWait;
+    public Sprite AQPunch;
+    public Sprite AQBlock;
+    public Sprite AQStun;
+    public Sprite AQWindup;
 
     bool p1r = false;
     bool p2r = false;
@@ -73,29 +92,78 @@ public class UIHandler : MonoBehaviour
     //Update Health amount UIs
     public void updateHealths(int p1, int p2)
     {
-        //Debug.Log("DEBUG " + p1 + " " + p2);
-        p1hp.text = "P1 HP: " + p1;
-        p2hp.text = "P2 HP: " + p2;
+        refreshHearts(p1, p1Heart);
+        refreshHearts(p2, p2Heart);
+    }
+
+    //Update visual images of hearts for the player HP
+    void refreshHearts(int p, GameObject[] gArr)
+    {
+        foreach(GameObject g in gArr)
+        {
+            g.SetActive(false);
+        }
+        if (p > 0)
+        {
+            for (int i = 0; i < p; i++)
+            {
+                gArr[i].SetActive(true);
+            }
+        }
     }
 
     //Update Round number UI
     public void updateRoundNumber(int r)
     {
-        roundsText.text = "Round " + r;
+        roundsText.text = "Scene\n" + r;
     }
 
     //Update Round wins of both players' UIs
     public void updateRoundWins(int p1, int p2)
     {
-        p1WRounds.text = "P1 Wins: " + p1;
-        p2WRounds.text = "P2 Wins: " + p2;
+        refreshRoundLights(p1Lights, p1);
+        refreshRoundLights(p2Lights, p2);
+    }
+
+    //Update visual images of lights based on round wins. Initially set all to off
+    void refreshRoundLights(Image[] iArr, int wins)
+    {
+        int count = 0;
+        foreach(Image i in iArr)
+        {
+            i.sprite = lightOff;
+        }
+        foreach(Image i in iArr){
+            if (count == wins)
+            {
+                return;
+            }
+            i.sprite = lightOn;
+            count++;
+        }
     }
 
     //Update Action limit of both players' UI 
     public void updateActionLimit(Player p1, Player p2)
     {
-        p1Actions.text = "P1 Actions: " + p1.actionPoints + "/" + p1.actionLimit;
-        p2Actions.text = "P2 Actions: " + p2.actionPoints + "/" + p2.actionLimit;
+        refreshMegaphoneIcons(p1, p1Megaphones);
+        refreshMegaphoneIcons(p2, p2Megaphones);
+    }
+
+    //Update visual images of action limit points available (megaphones)
+    void refreshMegaphoneIcons(Player p, GameObject[] gArr)
+    {
+        foreach(GameObject g in gArr)
+        {
+            g.SetActive(false);
+        }
+        if(p.actionPoints > 0)
+        {
+            for(int i = 0; i < p.actionPoints; i++)
+            {
+                gArr[i].SetActive(true);
+            }
+        }
     }
 
     //Update Player ready UIs 
@@ -103,22 +171,30 @@ public class UIHandler : MonoBehaviour
     {
         if (p1)
         {
+            p1Clapper.sprite = clapperClosed;
+            
             p1Ready.color = Color.green;
             p1Ready.text = "P1 RDY";
             p1r = true;
         } else
         {
+            p1Clapper.sprite = clapperOpen;
+            
             p1Ready.color = Color.red;
             p1Ready.text = "P1 NOT RDY (V)";
             p1r = false;
         }
         if (p2)
         {
+            p2Clapper.sprite = clapperClosed;
+            
             p2Ready.color = Color.green;
             p2Ready.text = "P2 RDY";
             p2r = true;
         } else
         {
+            p2Clapper.sprite = clapperOpen;
+            
             p2Ready.color = Color.red;
             p2Ready.text = "P2 NOT RDY (B)";
             p2r = false;
@@ -161,44 +237,81 @@ public class UIHandler : MonoBehaviour
     //Add to action queue display UI text
     public void displayActions(ACTIONS a1, ACTIONS a2)
     {
-        p1ActionsQueue.text += parseDisplayAction(a1) + " ";
-        p2ActionsQueue.text += parseDisplayAction(a2) + " ";
+        addSpriteActionQueue(p1AQ, parseDisplayAction(a1));
+        addSpriteActionQueue(p2AQ, parseDisplayAction(a2));
+    }
+
+    //Add sprite to the last most empty image
+    void addSpriteActionQueue(Image[] q, Sprite s)
+    {
+        foreach(Image i in q)
+        {
+            if(i.sprite == null)
+            {
+                i.gameObject.SetActive(true);
+                i.sprite = s;
+
+                return;
+            }
+        }
+
+        //reached the end and all images being used
+        //shift all images one down then add the sprite to the final spot
+        shiftImagesDown(q);
+        q[q.Length - 1].sprite = s;
+    }
+
+    //Move action queue Images down 1 spot
+    void shiftImagesDown(Image[] q)
+    {
+        for(int i = 0; i < q.Length-1; i++)
+        {
+            q[i].sprite = q[i+1].sprite;
+        }
     }
 
     //Determine what action to display from the given action
-    string parseDisplayAction(ACTIONS a)
+    Sprite parseDisplayAction(ACTIONS a)
     {
         if (a == ACTIONS.MOVELEFT)
         {
-            return "M.LEFT";
+            return AQLeft;
         } else if (a == ACTIONS.MOVERIGHT)
         {
-            return "M.RIGHT";
+            return AQRight;
         } else if (a == ACTIONS.WAIT)
         {
-            return "WAIT";
+            return AQWait;
         } else if(a == ACTIONS.WINDUP)
         {
-            return "WINDUP";
+            return AQWindup;
         } else if(a == ACTIONS.PUNCH)
         {
-            return "PUNCH";
+            return AQPunch;
         } else if(a == ACTIONS.BLOCK)
         {
-            return "BLOCK";
+            return AQBlock;
         } else if(a == ACTIONS.STUN)
         {
-            return "STUN";
+            return AQStun;
         } else
         {
-            return "";
+            return null;
         }
     }
 
     //Clear the action queue display UI
     public void clearActionQueues()
     {
-        p1ActionsQueue.text = "";
-        p2ActionsQueue.text = "";
+        foreach(Image i in p1AQ)
+        {
+            i.sprite = null;
+            i.gameObject.SetActive(false);
+        }
+        foreach (Image i in p2AQ)
+        {
+            i.sprite = null;
+            i.gameObject.SetActive(false);
+        }
     }
 }

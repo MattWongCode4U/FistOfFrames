@@ -6,25 +6,28 @@ public class GameAudioManager : MonoBehaviour
 {
     public AudioSource backgroundMusic;
     
-    public AudioSource menuButtonSFX;
     public AudioSource moveSFX;
     public AudioSource hitSFX;
     public AudioSource blockSFX;
     public AudioSource stunSFX;
 
+    public AudioSource menuButtonSFX;
+
     List<AudioSource> musicList = new List<AudioSource>();
     List<AudioSource> sfxList = new List<AudioSource>();
+    List<AudioSource> uisfxList = new List<AudioSource>();
 
     // Start is called before the first frame update
     void Start()
     {
         musicList.Add(backgroundMusic);
         
-        sfxList.Add(menuButtonSFX);
         sfxList.Add(moveSFX);
         sfxList.Add(hitSFX);
         sfxList.Add(blockSFX);
         sfxList.Add(stunSFX);
+
+        uisfxList.Add(menuButtonSFX);
 
         //Fist time play check set volumes just in case
         if (!PlayerPrefs.HasKey("musicVolume"))
@@ -34,6 +37,10 @@ public class GameAudioManager : MonoBehaviour
         if (!PlayerPrefs.HasKey("sfxVolume"))
         {
             PlayerPrefs.SetFloat("sfxVolume", 1);
+        }
+        if (!PlayerPrefs.HasKey("uisfxVolume"))
+        {
+            PlayerPrefs.SetFloat("uisfxVolume", 1);
         }
 
         updateASVolumes();
@@ -57,6 +64,10 @@ public class GameAudioManager : MonoBehaviour
         foreach (AudioSource a in sfxList)
         {
             a.volume = PlayerPrefs.GetFloat("sfxVolume");
+        }
+        foreach (AudioSource a in uisfxList)
+        {
+            a.volume = PlayerPrefs.GetFloat("uisfxVolume");
         }
     }
 

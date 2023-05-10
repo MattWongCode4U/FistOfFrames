@@ -19,12 +19,17 @@ public class Player : MonoBehaviour
     public bool stunned = false;
     public float moveSpeed = 5f;
 
+    public bool superPunch = false;
+    public GameObject SuperPunchLight;
+    public GameObject DamageLight;
+
     public Dictionary<ACTIONS, int> ActionCost;
     Vector3 startPos, targetPos;
     float elapsedTime;
     float desiredDuration = 1.0f;
 
     Animator anim;
+    Animator dmgLightAnim;
 
     // Start is called before the first frame update
     void Start()
@@ -33,6 +38,7 @@ public class Player : MonoBehaviour
         actionPoints = actionLimit;
 
         anim = GetComponent<Animator>();
+        dmgLightAnim = DamageLight.GetComponent<Animator>();
 
         ActionCost = new Dictionary<ACTIONS, int>();
         ActionCost.Add(ACTIONS.MOVELEFT, 1);
@@ -55,15 +61,15 @@ public class Player : MonoBehaviour
     {
         elapsedTime = 0f;
         startPos = transform.position;
-        targetPos = to.position;
+        targetPos = new Vector3(to.position.x, transform.position.y, transform.position.z);
     }
 
     //Sets player to the given position 
     public void snapTo(Transform to)
     {
-        transform.position = to.position;
+        transform.position = new Vector3(to.position.x, transform.position.y, transform.position.z); ;
         startPos = transform.position;
-        targetPos = to.position;
+        targetPos = new Vector3(to.position.x, transform.position.y, transform.position.z); ;
     }
 
     //Damage taken, blocking check
@@ -85,6 +91,7 @@ public class Player : MonoBehaviour
     {
         health = fullHealth;
         blocking = false;
+        disableSuperPunch();
         resetAP();
     }
 
@@ -118,6 +125,20 @@ public class Player : MonoBehaviour
         }
     }
 
+    //Enable super punch and visual
+    public void enableSuperPunch()
+    {
+        superPunch = true;
+        SuperPunchLight.SetActive(true);
+    }
+
+    //Disable super punch and visual
+    public void disableSuperPunch()
+    {
+        superPunch = false;
+        SuperPunchLight.SetActive(false);
+    }
+
     //Animations
     //Reset idle animation from the start
     public void idleAnimReset()
@@ -131,6 +152,7 @@ public class Player : MonoBehaviour
         anim.SetTrigger("Run");
     }
 
+    //Play windup animation
     public void windupAnim()
     {
         anim.SetTrigger("Windup");
@@ -140,6 +162,12 @@ public class Player : MonoBehaviour
     public void punchAnim()
     {
         anim.SetTrigger("Punch");
+    }
+
+    //Play super punch animation
+    public void superPunchAnim()
+    {
+        anim.SetTrigger("SuperPunch");
     }
 
     //Play punch animation
@@ -160,6 +188,12 @@ public class Player : MonoBehaviour
         anim.SetTrigger("Stun");
     }
 
+    //Play damage light animation
+    public void damageLight()
+    {
+        dmgLightAnim.SetTrigger("Flash");
+    }
+
     //Reset all animation triggers
     public void resetAnimTriggers()
     {
@@ -168,5 +202,7 @@ public class Player : MonoBehaviour
         anim.ResetTrigger("Block");
         anim.ResetTrigger("Death");
         anim.ResetTrigger("Stun");
+        anim.ResetTrigger("SuperPunch");
+        dmgLightAnim.ResetTrigger("Flash");
     }
 }

@@ -10,7 +10,6 @@ public class GameMaster : MonoBehaviour
     public GameAudioManager gameAudioManager;
     public GameObject gameOverGO;
     public Transform[] positions;
-    public Transform[] topPositions;
 
     public GameObject p1go, p2go;
     Player Player1, Player2;
@@ -39,13 +38,14 @@ public class GameMaster : MonoBehaviour
 
     private void Awake()
     {
+        //See which game mode it is
         if(MainMenu.GameMode == "vsAI")
         {
             vsAI = true;
         } else if (MainMenu.GameMode == "offPVP")
         {
             vsAI = false;
-        } else if (MainMenu.GameMode == "onPVP")
+        } else if (MainMenu.GameMode == "onPVP") //potential online pvp setup for future
         {
             vsAI = false;
         }
@@ -240,7 +240,7 @@ public class GameMaster : MonoBehaviour
         Player2.pos = defaultPlayer2Pos;
         Player1.snapTo(positions[defaultPlayer1Pos]);
         Player2.snapTo(positions[defaultPlayer2Pos]);
-        //Default health reset
+        //Default player variables reset
         Player1.reset();
         Player2.reset();
 
@@ -307,7 +307,6 @@ public class GameMaster : MonoBehaviour
         Debug.Log("p1: " + out1);
         Debug.Log("p2: " + out2);
 
-
         //Parse all actions
         for (int i = 0; i < p1Actions.Count; i++)
         {
@@ -315,6 +314,7 @@ public class GameMaster : MonoBehaviour
             {
                 break;
             }
+            handleSuperPunch(i, p1Actions[i], p2Actions[i]);
             compareActions(p1Actions[i], p2Actions[i]);
             ui.displayActions(p1Actions[i], p2Actions[i]);
             handleStuns(i);
@@ -392,6 +392,13 @@ public class GameMaster : MonoBehaviour
         {
             parseAction(ACTIONS.WAIT, USER.PLAYER1);
             parseAction(ACTIONS.WAIT, USER.PLAYER2);
+        }
+
+        //Both going right, handle timing error
+        else if(a1 == ACTIONS.MOVERIGHT && a2 == ACTIONS.MOVERIGHT)
+        {
+            parseAction(a2, USER.PLAYER2);
+            parseAction(a1, USER.PLAYER1);
         }
 
         //Block vs Attack
@@ -491,6 +498,7 @@ public class GameMaster : MonoBehaviour
         }
     }
 
+    //Windup action of player
     public void windup(USER u)
     {
         Player p = getPlayer(u);
@@ -502,7 +510,16 @@ public class GameMaster : MonoBehaviour
     {
         Player p = getPlayer(u);
         Player otherP = getOtherPlayer(u);
-        p.punchAnim();
+        if (p.superPunch)
+        {
+            p.superPunchAnim();
+            p.disableSuperPunch();
+        }
+        else
+        {
+            p.punchAnim();
+        }
+
         bool hitting = false;
         if (u == USER.PLAYER1)
         {
@@ -523,11 +540,13 @@ public class GameMaster : MonoBehaviour
             if (otherP.blocking)
             {
                 p.stunned = true;
-                gameAudioManager.playHitSFX();
+                otherP.enableSuperPunch();
+                gameAudioManager.playBlockSFX();
             } else
             {
                 otherP.takeDamage(p.punchDamage);
-                gameAudioManager.playBlockSFX();
+                otherP.damageLight();
+                gameAudioManager.playHitSFX();
             }
         }
     }
@@ -614,7 +633,7 @@ public class GameMaster : MonoBehaviour
                 Debug.Log("P2 Round Win");
                 if (!checkP2Win())
                 {
-                    ui.roundEnd("P2 Round Win");
+                    ui.roundEnd("P2 Scene Win");
                 }
             }
             else if (Player2.health <= 0) //P2 dead
@@ -623,7 +642,7 @@ public class GameMaster : MonoBehaviour
                 Debug.Log("P1 Round Win");
                 if (!checkP1Win())
                 {
-                    ui.roundEnd("P1 Round Win");
+                    ui.roundEnd("P1 Scene Win");
                 }
             }
         }
@@ -682,19 +701,28 @@ public class GameMaster : MonoBehaviour
             p2Actions.Insert(index +1, ACTIONS.STUN);
         }
         eqaulizeQueues();
-        //Debugging outputs
-        string out1 = "";
-        string out2 = "";
-        foreach (ACTIONS a in p1Actions)
+    }
+
+    //Removes WINDUP action if super punch is available
+    void handleSuperPunch(int index, ACTIONS a1, ACTIONS a2)
+    {
+        bool change = false;
+        if (Player1.superPunch && a1 == ACTIONS.WINDUP)
         {
-            out1 += a.ToString() + ", ";
+            p1Actions.RemoveAt(index);
+            change = true;
         }
-        foreach (ACTIONS a in p2Actions)
+        if (Player2.superPunch && a2 == ACTIONS.WINDUP)
         {
-            out2 += a.ToString() + ", ";
+            p2Actions.RemoveAt(index);
+            change = true;
         }
-        Debug.Log("p1: " + out1);
-        Debug.Log("p2: " + out2);
+        
+        if (change)
+        {
+            pruneQueues();
+            eqaulizeQueues();
+        }
     }
 
     //Shows the gameover screen with the winning player after a delay 

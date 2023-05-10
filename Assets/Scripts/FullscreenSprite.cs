@@ -18,7 +18,8 @@ public class FullscreenSprite : MonoBehaviour
 
     void Awake()
     {
-        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        //Not using right now
+        /*SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
 
         float cameraHeight = Camera.main.orthographicSize * 2;
         Vector2 cameraSize = new Vector2(Camera.main.aspect * cameraHeight, cameraHeight);
@@ -35,6 +36,6 @@ public class FullscreenSprite : MonoBehaviour
         }
 
         transform.position = Vector2.zero; // Optional
-        transform.localScale = scale;
+        transform.localScale = scale;*/
     }
 }

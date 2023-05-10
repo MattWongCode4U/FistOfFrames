@@ -9,16 +9,17 @@ public class AudioManager : MonoBehaviour
     public AudioSource menuButtonSFX;
     public Slider musicSlider;
     public Slider sfxSlider;
+    public Slider uiSFXSlider;
 
     List<AudioSource> musicList = new List<AudioSource>();
-    List<AudioSource> sfxList = new List<AudioSource>();
+    List<AudioSource> uisfxList = new List<AudioSource>();
 
     // Start is called before the first frame update
     void Start()
     {
         musicList.Add(backgroundMusic);
         
-        sfxList.Add(menuButtonSFX);
+        uisfxList.Add(menuButtonSFX);
 
         //Fist time play check set volumes just in case
         if (!PlayerPrefs.HasKey("musicVolume"))
@@ -28,6 +29,10 @@ public class AudioManager : MonoBehaviour
         if (!PlayerPrefs.HasKey("sfxVolume"))
         {
             PlayerPrefs.SetFloat("sfxVolume", 1);
+        }
+        if (!PlayerPrefs.HasKey("uisfxVolume"))
+        {
+            PlayerPrefs.SetFloat("uisfxVolume", 1);
         }
 
         updateASVolumes();
@@ -56,6 +61,13 @@ public class AudioManager : MonoBehaviour
         updateASVolumes();
     }
 
+    //Whenever uisfx volume slider changes, update PlayerPrefs
+    public void changeUISFXVolume()
+    {
+        saveUISFXVolume();
+        updateASVolumes();
+    }
+
     //Set all audios sources volumes according to PlayerPref
     public void updateASVolumes()
     {
@@ -63,9 +75,9 @@ public class AudioManager : MonoBehaviour
         {
             a.volume = PlayerPrefs.GetFloat("musicVolume");
         }
-        foreach (AudioSource a in sfxList)
+        foreach (AudioSource a in uisfxList)
         {
-            a.volume = PlayerPrefs.GetFloat("sfxVolume");
+            a.volume = PlayerPrefs.GetFloat("uisfxVolume");
         }
     }
 
@@ -81,10 +93,17 @@ public class AudioManager : MonoBehaviour
         PlayerPrefs.SetFloat("sfxVolume", sfxSlider.value);
     }
 
+    //Set uiSFX volume value in PlayerPref
+    void saveUISFXVolume()
+    {
+        PlayerPrefs.SetFloat("uisfxVolume", uiSFXSlider.value);
+    }
+
     //Adjust sliders to saved PlayerPref values
     void loadVolume()
     {
         musicSlider.value = PlayerPrefs.GetFloat("musicVolume");
         sfxSlider.value = PlayerPrefs.GetFloat("sfxVolume");
+        uiSFXSlider.value = PlayerPrefs.GetFloat("uisfxVolume");
     }
 }
