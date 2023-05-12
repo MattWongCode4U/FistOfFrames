@@ -50,6 +50,7 @@ public class Player : MonoBehaviour
         ActionCost.Add(ACTIONS.STUN, 0);
     }
 
+    // Update is called once per frame
     void Update()
     {
         elapsedTime += Time.deltaTime;

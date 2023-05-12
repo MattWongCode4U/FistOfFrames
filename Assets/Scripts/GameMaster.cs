@@ -318,7 +318,7 @@ public class GameMaster : MonoBehaviour
             compareActions(p1Actions[i], p2Actions[i]);
             ui.displayActions(p1Actions[i], p2Actions[i]);
             handleStuns(i);
-            ui.updateUI(Player1, Player2, roundCounter, p1roundsW, p2roundsW, p1ready, p2ready);
+            ui.updateUILoop(Player1, Player2, p1ready, p2ready);
             clearStatuses();
             yield return new WaitForSeconds(delayBetweenFrames);
             Player1.resetAnimTriggers();

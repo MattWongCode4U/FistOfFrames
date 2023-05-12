@@ -25,7 +25,7 @@ public class MainMenu : MonoBehaviour
 
     void Start()
     {
-        //enableMainMenu();
+        enableMainMenu();
     }
 
     //Start Game button opens the game scene

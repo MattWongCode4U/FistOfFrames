@@ -51,12 +51,6 @@ public class PlayerAI : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     //Generates list of actions for AI
     public List<ACTIONS> genActions()
     {

@@ -89,6 +89,14 @@ public class UIHandler : MonoBehaviour
         updateReadys(p1r, p2r);
     }
 
+    //Update UI in action queue loop, doesn't need to update everything
+    public void updateUILoop(Player p1, Player p2, bool p1r, bool p2r)
+    {
+        updateHealths(p1.health, p2.health);
+        updateActionLimit(p1, p2);
+        updateReadys(p1r, p2r);
+    }
+
     //Update Health amount UIs
     public void updateHealths(int p1, int p2)
     {
@@ -204,7 +212,7 @@ public class UIHandler : MonoBehaviour
     //Update Game Over text with correct player number
     public void updateGameOverPlayerText(string p)
     {
-        gameOverPlayerWonText.text = "Game Over \n" + p + " Wins!";
+        gameOverPlayerWonText.text = "Game Over\n" + p + " Wins the Role!";
     }
 
     //Update round over overlay text and call the timed show function
