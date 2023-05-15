@@ -200,6 +200,7 @@ public class Player : MonoBehaviour
     {
         anim.ResetTrigger("Run");
         anim.ResetTrigger("Punch");
+        anim.ResetTrigger("Windup");
         anim.ResetTrigger("Block");
         anim.ResetTrigger("Death");
         anim.ResetTrigger("Stun");
